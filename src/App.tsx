@@ -278,7 +278,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-2 text-[14px] font-medium text-white/65">
+          <div className="mt-8 flex items-center justify-center gap-2 text-[14px] font-medium text-white/65" role="status" aria-live="polite" aria-atomic="true">
             <span className="rounded-[4px] bg-white/90 px-1.5 py-0.5 text-[10px] font-black text-[#20232a]">HD</span>
             <span>{statusText}</span>
             <Video className="ml-2 size-4 text-white/45" />
@@ -389,7 +389,7 @@ export default function App() {
                 {error}
               </p>
             ) : (
-              <p className="mt-4 text-xs text-white/35">
+              <p className="mt-4 text-xs text-white/35" role="status" aria-live="polite" aria-atomic="true">
                 {isLive
                   ? "Connected · Abbie is on the line"
                   : isRinging
