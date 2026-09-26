@@ -24,7 +24,7 @@ function cx(...parts: Array<string | false | null | undefined>) {
 }
 
 function elapsed(seconds: number) {
-  return \`\${String(Math.floor(seconds / 60)).padStart(2, "0")}:\${String(seconds % 60).padStart(2, "0")}\`;
+  return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
 function localTime() {
@@ -297,7 +297,7 @@ export default function App() {
                   isLive ? "bg-white/95" : isRinging || isCalling ? "bg-white/45" : "bg-white/18",
                 )}
                 style={{
-                  height: \`\${10 + level * 42}px\`,
+                  height: `${10 + level * 42}px`,
                   opacity: isLive ? 0.72 + level * 0.28 : 0.6,
                 }}
               />
@@ -353,7 +353,7 @@ export default function App() {
               </p>
             ) : (
               <p className="mt-4 text-xs text-white/45">
-                {isLive ? \`Connected to Abbie · \${elapsed(seconds)}\` : isCalling ? "Connecting to Abbie..." : "Tap to call Abbie"}
+                {isLive ? `Connected to Abbie · ${elapsed(seconds)}` : isCalling ? "Connecting to Abbie..." : "Tap to call Abbie"}
               </p>
             )}
           </div>
