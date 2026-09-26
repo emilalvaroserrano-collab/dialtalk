@@ -1,47 +1,43 @@
 # DialTalk
 
-DialTalk is the ABI Tech call-center CRM frontend for **AbbieCSR**. It includes a mobile-style dialer, KYC context, customer queue, live transcript UI, and a real browser-to-LiveKit voice connection.
+DialTalk is a **single-screen Abbie voice dialer** for ABI Tech. The UI intentionally contains no CRM dashboard, queue, analytics, customer cards, or additional views.
 
-## Stack
+## Included
 
-- React + Vite
-- Tailwind CSS
-- LiveKit Client SDK
-- Vercel serverless token endpoint
-- Explicit LiveKit agent dispatch to `AbbieCSR`
+- Android-inspired in-call screen
+- Editable phone-number display
+- LiveKit browser audio call to \`AbbieCSR\`
+- Mute and speaker controls
+- Real incoming-audio visualizer using the Web Audio API
+- Secure server-side LiveKit token generation
+- Explicit dispatch to the \`AbbieCSR\` worker
+- Vercel-ready Vite frontend
 
 ## Vercel environment variables
 
-Set these in Vercel as encrypted server-side variables:
+Set these as encrypted server-side environment variables:
 
-```text
+\`\`\`text
 LIVEKIT_URL=
 LIVEKIT_API_KEY=
 LIVEKIT_API_SECRET=
-```
+\`\`\`
 
-Do not prefix them with `VITE_`. The LiveKit API secret must never be exposed to the browser.
+Never expose \`LIVEKIT_API_SECRET\` through a \`VITE_\` variable.
 
 ## Voice worker
 
-Run the separate AbbieCSR LiveKit worker with the same LiveKit project. Its environment also needs:
-
-```text
-GOOGLE_API_KEY=
-CARTESIA_API_KEY=
-```
+The separate \`AbbieCSR\` worker uses the same LiveKit project and should hold provider keys such as \`GOOGLE_API_KEY\` and \`CARTESIA_API_KEY\`.
 
 ## Development
 
-```bash
+\`\`\`bash
 npm install
 npm run dev
-```
+\`\`\`
 
-Production:
+Production build:
 
-```bash
+\`\`\`bash
 npm run build
-```
-
-Each new dialer call creates a unique room, so the token's room configuration dispatches the `AbbieCSR` agent when the room is created.
+\`\`\`
