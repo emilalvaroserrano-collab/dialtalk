@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Bluetooth,
   EllipsisVertical,
@@ -332,7 +332,7 @@ function CallControl({
   disabled = false,
   onClick,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   active?: boolean;
   disabled?: boolean;
@@ -348,7 +348,7 @@ function CallControl({
       <span
         className={cx(
           "grid size-[82px] place-items-center rounded-[28px] text-white transition active:scale-95",
-          active ? "bg-white/26" : "bg-black/23",
+          active ? "bg-white/[0.26]" : "bg-black/[0.23]",
         )}
       >
         {icon}
