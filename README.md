@@ -27,7 +27,7 @@ Never expose \`LIVEKIT_API_SECRET\` through a \`VITE_\` variable.
 
 ## Voice worker
 
-The separate \`AbbieCSR\` worker uses the same LiveKit project and should hold provider keys such as \`GOOGLE_API_KEY\` and \`CARTESIA_API_KEY\`.
+The separate \`AbbieCSR\` worker uses the same LiveKit project and should hold provider keys such as \`GEMINI_API_KEY\` and \`CARTESIA_API_KEY\`.
 
 ## Development
 
