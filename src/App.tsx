@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 import { Room, RoomEvent, Track, type RemoteTrack } from "livekit-client";
 
-type CallState = "idle" | "connecting" | "active" | "error";
+type CallState = "idle" | "ringing" | "connecting" | "active" | "error";
+
+const RINGTONE_URL = "https://cdn.pixabay.com/audio/2025/07/30/audio_a4cedca394.mp3?filename=dragon-studio-phone-ringing-382734.mp3";
+const RING_DURATION_MS = 8_000;
 const BAR_COUNT = 15;
 
 function cx(...parts: Array<string | false | null | undefined>) {
@@ -43,20 +46,24 @@ export default function App() {
 
   const roomRef = useRef<Room | null>(null);
   const audioHostRef = useRef<HTMLDivElement | null>(null);
+  const ringtoneRef = useRef<HTMLAudioElement | null>(null);
+  const callAttemptRef = useRef(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationRef = useRef<number | null>(null);
 
   const isLive = callState === "active";
+  const isRinging = callState === "ringing";
   const isCalling = callState === "connecting";
-  const isBusy = isLive || isCalling;
+  const isBusy = isLive || isRinging || isCalling;
 
   const statusText = useMemo(() => {
-    if (isCalling) return "Calling...";
+    if (isRinging) return "Calling...";
+    if (isCalling) return "Connecting...";
     if (isLive) return elapsed(seconds);
     if (callState === "error") return "Call failed";
     return "Ready";
-  }, [callState, isCalling, isLive, seconds]);
+  }, [callState, isCalling, isLive, isRinging, seconds]);
 
   useEffect(() => {
     if (!isLive) return;
@@ -97,10 +104,20 @@ export default function App() {
     };
   }, [isLive]);
 
-  useEffect(() => () => {
-    roomRef.current?.disconnect();
-    if (animationRef.current) window.cancelAnimationFrame(animationRef.current);
-    void audioContextRef.current?.close();
+  useEffect(() => {
+    const ringtone = new Audio(RINGTONE_URL);
+    ringtone.preload = "auto";
+    ringtone.volume = 0.9;
+    ringtoneRef.current = ringtone;
+
+    return () => {
+      callAttemptRef.current += 1;
+      ringtone.pause();
+      ringtone.currentTime = 0;
+      roomRef.current?.disconnect();
+      if (animationRef.current) window.cancelAnimationFrame(animationRef.current);
+      void audioContextRef.current?.close();
+    };
   }, []);
 
   async function connectVisualizer(track: RemoteTrack) {
@@ -131,9 +148,30 @@ export default function App() {
   async function startCall() {
     if (isBusy) return;
 
-    setCallState("connecting");
+    const attempt = ++callAttemptRef.current;
+    setCallState("ringing");
     setSeconds(0);
     setError(null);
+
+    const ringtone = ringtoneRef.current ?? new Audio(RINGTONE_URL);
+    ringtoneRef.current = ringtone;
+    ringtone.currentTime = 0;
+    ringtone.loop = false;
+    ringtone.volume = 0.9;
+
+    try {
+      await ringtone.play();
+    } catch {
+      // Continue the call flow if the browser blocks or fails to load the ring asset.
+    }
+
+    await new Promise<void>((resolve) => window.setTimeout(resolve, RING_DURATION_MS));
+
+    if (attempt !== callAttemptRef.current) return;
+
+    ringtone.pause();
+    ringtone.currentTime = 0;
+    setCallState("connecting");
 
     try {
       const response = await fetch("/api/livekit-token", { method: "POST" });
@@ -182,6 +220,12 @@ export default function App() {
   }
 
   function endCall() {
+    callAttemptRef.current += 1;
+    const ringtone = ringtoneRef.current;
+    if (ringtone) {
+      ringtone.pause();
+      ringtone.currentTime = 0;
+    }
     roomRef.current?.disconnect();
     roomRef.current = null;
     analyserRef.current = null;
@@ -250,7 +294,7 @@ export default function App() {
                 key={index}
                 className={cx(
                   "w-[5px] rounded-full transition-[height,opacity] duration-75",
-                  isLive ? "bg-white/95" : isCalling ? "bg-white/45" : "bg-white/18",
+                  isLive ? "bg-white/95" : isRinging || isCalling ? "bg-white/45" : "bg-white/18",
                 )}
                 style={{
                   height: \`\${10 + level * 42}px\`,
